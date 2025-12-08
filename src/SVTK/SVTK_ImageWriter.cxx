@@ -29,6 +29,7 @@
 #include <vtkJPEGWriter.h>
 #include <vtkSmartPointer.h>
 
+#include <iostream>
 
 //----------------------------------------------------------------------------
 SVTK_ImageWriter
@@ -52,7 +53,7 @@ SVTK_ImageWriter
 ::~SVTK_ImageWriter()
 {
   if(SALOME::VerbosityActivated())
-    cout << "SVTK_ImageWriter::~SVTK_ImageWriter - this = " << this << endl;
+    std::cout << "SVTK_ImageWriter::~SVTK_ImageWriter - this = " << this << endl;
 }
 
 
@@ -99,7 +100,7 @@ SVTK_ImageWriter
   myImageData->Delete();
 
   if(SALOME::VerbosityActivated())
-    cout << "SVTK_ImageWriter::run - this = " << this <<
+    std::cout << "SVTK_ImageWriter::run - this = " << this <<
     //"; total = "<<mySemaphore->total()<<
     "; available = " << mySemaphore->available() << endl;
     

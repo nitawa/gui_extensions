@@ -309,7 +309,7 @@ SVTK_Recorder
     myFrameIndexes.back() *= -1;
 
     if(SALOME::VerbosityActivated())
-      cout << "SVTK_Recorder::Pause - myFrameIndexes.back() = " << myFrameIndexes.back() << endl;
+      std::cout << "SVTK_Recorder::Pause - myFrameIndexes.back() = " << myFrameIndexes.back() << endl;
   }
 }
 
@@ -347,7 +347,7 @@ SVTK_Recorder
       double aPauseTime = fabs((double)(aFrameIndex - myFrameIndex - 1)) / myNbFPS;
 
       if(SALOME::VerbosityActivated())
-        cout << "SVTK_Recorder::DoRecord - aFrameIndex = " << aFrameIndex <<
+        std::cout << "SVTK_Recorder::DoRecord - aFrameIndex = " << aFrameIndex <<
         "; aPauseTime = " << aPauseTime << endl;
 
       myTimeStart += aPauseTime;
@@ -362,7 +362,7 @@ SVTK_Recorder
 
   myFrameIndexes.push_back(myFrameIndex);
   if(SALOME::VerbosityActivated())
-    cout << "SVTK_Recorder::DoRecord - myFrameIndex = " << myFrameIndex << endl;
+    std::cout << "SVTK_Recorder::DoRecord - myFrameIndex = " << myFrameIndex << endl;
 
   myRenderWindow->RemoveObserver(myCommand);
   myFilter->Modified();
@@ -445,7 +445,7 @@ SVTK_Recorder
     std::string aString(aStream.str());
     system(aString.c_str());
     if(SALOME::VerbosityActivated())
-      cout << "SVTK_Recorder::AddSkippedFrames - " << aString << endl;
+      std::cout << "SVTK_Recorder::AddSkippedFrames - " << aString << endl;
   }
 }
 
@@ -472,7 +472,7 @@ SVTK_Recorder
   myErrorStatus = system(aString.c_str());
 
   if(SALOME::VerbosityActivated())
-    cout << "SVTK_Recorder::MakeFileAVI - " << aString << endl;
+    std::cout << "SVTK_Recorder::MakeFileAVI - " << aString << endl;
 
   QFileInfo aFileInfo(myName.c_str());
   QString aDirPath = aFileInfo.absoluteDir().path();
@@ -493,7 +493,7 @@ SVTK_Recorder
 #endif
 
   if(SALOME::VerbosityActivated())
-    cout << "SVTK_Recorder::MakeFileAVI - " << (const char*)aCommand.toUtf8() << endl;
+    std::cout << "SVTK_Recorder::MakeFileAVI - " << (const char*)aCommand.toUtf8() << endl;
     
   system((const char*)aCommand.toUtf8());
 }

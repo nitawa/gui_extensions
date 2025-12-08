@@ -27,6 +27,7 @@
 
 #include <QSemaphore>
 
+#include <iostream>
 #include <limits>
 
 //----------------------------------------------------------------------------
@@ -37,7 +38,7 @@ SVTK_ImageWriterMgr
   mySemaphore = new QSemaphore(aMax);
   mySemaphore->acquire( aMax );
   if(SALOME::VerbosityActivated())
-    cout << "SVTK_ImageWriterMgr::SVTK_ImageWriterMgr; available = " << mySemaphore->available() << endl;
+    std::cout << "SVTK_ImageWriterMgr::SVTK_ImageWriterMgr; available = " << mySemaphore->available() << endl;
 }
 
 
@@ -79,12 +80,12 @@ SVTK_ImageWriterMgr
 ::Stop()
 {
   if(SALOME::VerbosityActivated())
-    cout << "SVTK_ImageWriterMgr::Stop " <<
+    std::cout << "SVTK_ImageWriterMgr::Stop " <<
     //"- total = "<<mySemaphore->total()<<
     "; available = " << mySemaphore->available() << endl;
 
   if(SALOME::VerbosityActivated())
-    cout << "SVTK_ImageWriterMgr::Stop - *mySemaphore += " << myThreads.size() << endl;
+    std::cout << "SVTK_ImageWriterMgr::Stop - *mySemaphore += " << myThreads.size() << endl;
     
   mySemaphore->acquire( (int)myThreads.size() ); //!< TODO: conversion from size_t to int
 

@@ -23,10 +23,11 @@
 #include "VTKViewer_ConvexTool.h"
 #include "VTKViewer_GeometryFilter.h"
 
-#include <set>
-#include <map>
 #include <algorithm>
+#include <iostream>
 #include <iterator>
+#include <map>
+#include <set>
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkGeometryFilter.h>
@@ -207,7 +208,7 @@ VTKViewer_Triangulator
 {
   vtkPoints *aPoints = InitPoints(theInput, theCellId);
   vtkIdType aNumPts = GetNbOfPoints();
-  if(DEBUG_TRIA_EXECUTE) cout<<"Triangulator - aNumPts = "<<aNumPts<<"\n";
+  if(DEBUG_TRIA_EXECUTE) std::cout<<"Triangulator - aNumPts = "<<aNumPts<<"\n";
 
   if(aNumPts == 0)
     return true;
@@ -218,7 +219,7 @@ VTKViewer_Triangulator
     double aPntCoord[3];
     for (auto aPntId = 0; aPntId < aNumPts; aPntId++) {
       aPoints->GetPoint(GetPointId(aPntId),aPntCoord);
-      if(DEBUG_TRIA_EXECUTE) cout<<"\taPntId = "<<GetPointId(aPntId)<<" {"<<aPntCoord[0]<<", "<<aPntCoord[1]<<", "<<aPntCoord[2]<<"}\n";
+      if(DEBUG_TRIA_EXECUTE) std::cout<<"\taPntId = "<<GetPointId(aPntId)<<" {"<<aPntCoord[0]<<", "<<aPntCoord[1]<<", "<<aPntCoord[2]<<"}\n";
       aCellCenter[0] += aPntCoord[0];
       aCellCenter[1] += aPntCoord[1];
       aCellCenter[2] += aPntCoord[2];
@@ -233,7 +234,7 @@ VTKViewer_Triangulator
 
   static double EPS = 1.0E-2;
   double aDistEps = aCellLength/3.0 * EPS;
-  if(DEBUG_TRIA_EXECUTE) cout<<"\taNumFaces = "<<aNumFaces<<"; aCellLength = "<<aCellLength<<"; aDistEps = "<<aDistEps<<"\n";
+  if(DEBUG_TRIA_EXECUTE) std::cout<<"\taNumFaces = "<<aNumFaces<<"; aCellLength = "<<aCellLength<<"; aDistEps = "<<aDistEps<<"\n";
 
   // To initialize set of points that belong to the cell
   typedef std::set<vtkIdType> TPointIds;
@@ -288,8 +289,8 @@ VTKViewer_Triangulator
     // To get know, if the points of the trinagle were already observed
     bool anIsObserved = aFace2PointIds.find(aPointIds) == aFace2PointIds.end();
     if(DEBUG_TRIA_EXECUTE) {
-      cout<<"\taFaceId = "<<aFaceId<<"; anIsObserved = "<<anIsObserved;
-      cout<<"; aNewPts = {"<<aNewPts[0]<<", "<<aNewPts[1]<<", "<<aNewPts[2]<<"}\n";
+      std::cout<<"\taFaceId = "<<aFaceId<<"; anIsObserved = "<<anIsObserved;
+      std::cout<<"; aNewPts = {"<<aNewPts[0]<<", "<<aNewPts[1]<<", "<<aNewPts[2]<<"}\n";
     }
     
     if(!anIsObserved){
@@ -391,18 +392,18 @@ VTKViewer_Triangulator
           vtkMath::Normalize(aNormalPnt);
           
           if(DEBUG_TRIA_EXECUTE)
-            cout<<"\t\taPntId = "<<aPntId<<" {"<<aPntCoord[0]<<", "<<aPntCoord[1]<<", "<<aPntCoord[2]<<"};";
+            std::cout<<"\t\taPntId = "<<aPntId<<" {"<<aPntCoord[0]<<", "<<aPntCoord[1]<<", "<<aPntCoord[2]<<"};";
           
           double aDist = vtkPlane::DistanceToPlane(aPntCoord,aNormal,aCoord[0]);
-          if(DEBUG_TRIA_EXECUTE) cout<<": aDist = "<<aDist;
+          if(DEBUG_TRIA_EXECUTE) std::cout<<": aDist = "<<aDist;
           if(fabs(aDist) < aDistEps){
             aPointIds.insert(aPntId);
             aCenter[0] += aPntCoord[0];
             aCenter[1] += aPntCoord[1];
             aCenter[2] += aPntCoord[2];
-            if(DEBUG_TRIA_EXECUTE) cout  << "; Added = TRUE" << endl;
+            if(DEBUG_TRIA_EXECUTE) std::cout  << "; Added = TRUE" << endl;
           } else {
-            if(DEBUG_TRIA_EXECUTE) cout  << "; Added = FALSE" << endl;
+            if(DEBUG_TRIA_EXECUTE) std::cout  << "; Added = FALSE" << endl;
           }
         }
         size_t aNbPoints = aPointIds.size();
@@ -419,9 +420,9 @@ VTKViewer_Triangulator
       
       double aDot = vtkMath::Dot(aNormal,aVectorC);
       if(DEBUG_TRIA_EXECUTE) {
-        cout<<"\t\taNormal = {"<<aNormal[0]<<", "<<aNormal[1]<<", "<<aNormal[2]<<"}";
-        cout<<"; aVectorC = {"<<aVectorC[0]<<", "<<aVectorC[1]<<", "<<aVectorC[2]<<"}\n";
-        cout<<"\t\taDot = "<<aDot<<"\n";
+        std::cout<<"\t\taNormal = {"<<aNormal[0]<<", "<<aNormal[1]<<", "<<aNormal[2]<<"}";
+        std::cout<<"; aVectorC = {"<<aVectorC[0]<<", "<<aVectorC[1]<<", "<<aVectorC[2]<<"}\n";
+        std::cout<<"\t\taDot = "<<aDot<<"\n";
       }
       if(aDot > 0){
         aNormal[0] = -aNormal[0];
@@ -436,8 +437,8 @@ VTKViewer_Triangulator
       vtkMath::Normalize(aVector0);
       
       if(DEBUG_TRIA_EXECUTE) {
-        cout<<"\t\taCenter = {"<<aCenter[0]<<", "<<aCenter[1]<<", "<<aCenter[2]<<"}";
-        cout<<"; aVector0 = {"<<aVector0[0]<<", "<<aVector0[1]<<", "<<aVector0[2]<<"}\n";
+        std::cout<<"\t\taCenter = {"<<aCenter[0]<<", "<<aCenter[1]<<", "<<aCenter[2]<<"}";
+        std::cout<<"; aVector0 = {"<<aVector0[0]<<", "<<aVector0[1]<<", "<<aVector0[2]<<"}\n";
       }
       
       // To calculate the set of points by face those that belong to the plane
@@ -454,16 +455,16 @@ VTKViewer_Triangulator
           
 
           if(DEBUG_TRIA_EXECUTE) {
-            cout << "anIntersection:";
+            std::cout << "anIntersection:";
             TPointIds::iterator aII = anIntersection.begin();
             for(;aII!=anIntersection.end();aII++)
-              cout << *aII << ",";
-            cout << endl;
-            cout << "anIds         :";
+              std::cout << *aII << ",";
+            std::cout << endl;
+            std::cout << "anIds         :";
             TPointIds::const_iterator aIIds = anIds.begin();
             for(;aIIds!=anIds.end();aIIds++)
-              cout << *aIIds << ",";
-            cout << endl;
+              std::cout << *aIIds << ",";
+            std::cout << endl;
           }
           if(anIntersection == anIds){
             aRemoveFace2PointIds.insert(anIds);
@@ -515,9 +516,9 @@ VTKViewer_Triangulator
           }
           
           if(DEBUG_TRIA_EXECUTE) {
-            cout << "\t\t\t vtkMath::Dot(aCross,aNormal)="<<aCr<<endl;
-            cout<<"\t\t\taPntId = "<<aPntId<<" {"<<aPntCoord[0]<<", "<<aPntCoord[1]<<", "<<aPntCoord[2]<<"}";
-            cout<<"; aGreaterThanPi = "<<aGreaterThanPi<<"; aCosinus = "<<aCosinus<<"; anAngle = "<<anAngle<<"\n";
+            std::cout << "\t\t\t vtkMath::Dot(aCross,aNormal)="<<aCr<<endl;
+            std::cout<<"\t\t\taPntId = "<<aPntId<<" {"<<aPntCoord[0]<<", "<<aPntCoord[1]<<", "<<aPntCoord[2]<<"}";
+            std::cout<<"; aGreaterThanPi = "<<aGreaterThanPi<<"; aCosinus = "<<aCosinus<<"; anAngle = "<<anAngle<<"\n";
           }
           aSortedPointIds[anAngle] = aPntId;
         }
@@ -527,13 +528,13 @@ VTKViewer_Triangulator
           ::TConnectivities aConnectivities(aNumFacePts);
           TSortedPointIds::const_iterator anIter = aSortedPointIds.begin();
           TSortedPointIds::const_iterator anEndIter = aSortedPointIds.end();
-          if(DEBUG_TRIA_EXECUTE) cout << "Polygon:";
+          if(DEBUG_TRIA_EXECUTE) std::cout << "Polygon:";
           for(vtkIdType anId = 0; anIter != anEndIter; anIter++, anId++){
             vtkIdType aPntId = anIter->second;
             aConnectivities[anId] = GetConnectivity(aPntId);
-            if(DEBUG_TRIA_EXECUTE) cout << aPntId << ",";
+            if(DEBUG_TRIA_EXECUTE) std::cout << aPntId << ",";
           }
-          if(DEBUG_TRIA_EXECUTE) cout << endl;
+          if(DEBUG_TRIA_EXECUTE) std::cout << endl;
           aPolygons.push_back(::TPolygon(aConnectivities,aCenter,aNormal));
         }
       }
@@ -550,16 +551,16 @@ VTKViewer_Triangulator
       double* aNormal = aPolygon.myNormal;
       double* anOrigin = aPolygon.myOrigin;
       if(DEBUG_TRIA_EXECUTE) {
-        cout<<"\taPolygonId = "<<aPolygonId<<"\n";
-        cout<<"\t\taNormal = {"<<aNormal[0]<<", "<<aNormal[1]<<", "<<aNormal[2]<<"}";
-        cout<<"; anOrigin = {"<<anOrigin[0]<<", "<<anOrigin[1]<<", "<<anOrigin[2]<<"}\n";
+        std::cout<<"\taPolygonId = "<<aPolygonId<<"\n";
+        std::cout<<"\t\taNormal = {"<<aNormal[0]<<", "<<aNormal[1]<<", "<<aNormal[2]<<"}";
+        std::cout<<"; anOrigin = {"<<anOrigin[0]<<", "<<anOrigin[1]<<", "<<anOrigin[2]<<"}\n";
       }
       for(vtkIdType aPntId = 0; aPntId < aNumPts; aPntId++){
         double aPntCoord[3];
         vtkIdType anId = GetPointId(aPntId);
         aPoints->GetPoint(anId,aPntCoord);
         double aDist = vtkPlane::Evaluate(aNormal,anOrigin,aPntCoord);
-        if(DEBUG_TRIA_EXECUTE) cout<<"\t\taPntId = "<<anId<<" {"<<aPntCoord[0]<<", "<<aPntCoord[1]<<", "<<aPntCoord[2]<<"}; aDist = "<<aDist<<"\n";
+        if(DEBUG_TRIA_EXECUTE) std::cout<<"\t\taPntId = "<<anId<<" {"<<aPntCoord[0]<<", "<<aPntCoord[1]<<", "<<aPntCoord[2]<<"}; aDist = "<<aDist<<"\n";
         if(aDist < -aDistEps)
           return false;
       }
@@ -572,12 +573,12 @@ VTKViewer_Triangulator
     size_t aNbPolygons = aPolygons.size();
     for (size_t aPolygonId = 0; aPolygonId < aNbPolygons; aPolygonId++) {
       ::TPolygon& aPolygon = aPolygons[aPolygonId];
-      if(DEBUG_TRIA_EXECUTE) cout << "PoilygonId="<<aPolygonId<<" | ";
+      if(DEBUG_TRIA_EXECUTE) std::cout << "PoilygonId="<<aPolygonId<<" | ";
       TConnectivities& aConnectivities = aPolygon.myConnectivities;
       if(DEBUG_TRIA_EXECUTE) {
         for(size_t i=0;i<aConnectivities.size();i++)
-          cout << aConnectivities[i] << ",";
-        cout << endl;
+          std::cout << aConnectivities[i] << ",";
+        std::cout << endl;
       }
       int aNbPoints = (int)aConnectivities.size();
       vtkIdType aNewCellId = theOutput->InsertNextCell(VTK_POLYGON,aNbPoints,&aConnectivities[0]);
@@ -587,7 +588,7 @@ VTKViewer_Triangulator
     }
   }
 
-  if(DEBUG_TRIA_EXECUTE) cout<<"\tTriangulator - Ok\n";
+  if(DEBUG_TRIA_EXECUTE) std::cout<<"\tTriangulator - Ok\n";
   
   return true;
 }
