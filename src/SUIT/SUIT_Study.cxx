@@ -39,6 +39,7 @@ myApp( app ),
 myName( "" ),
 myIsSaved( false ),
 myIsModified( false ),
+myIsAutoSaving( false ),
 myBlockChangeState( false )
 {
   static int _id = 0;

@@ -40,6 +40,7 @@
 */
 CAM_DataModel::CAM_DataModel( CAM_Module* module )
 : myRoot( 0 ),
+  myIsAutoSaving( false ),
   myModule( module )
 {
 }
