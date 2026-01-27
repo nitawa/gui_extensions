@@ -676,7 +676,7 @@ void LightApp_ModuleAction::updateExtActions()
 
   // Import Python module that manages SALOME extensions.
   PyLockWrapper lck; // acquire GIL
-  PyObjWrapper extensionQuery = PyImport_ImportModule((char*)"SalomeOnDemandTK.extension_query");
+  PyObjWrapper extensionQuery = PyImport_ImportModule((char*)"SalomeOnDemandTK.extension_query_impl");
   PyObjWrapper extCanRemoveDict = PyObject_CallMethod(extensionQuery, (char*)"ext_canremove_flags", (char*)"s", extRootDir);
   if (!extCanRemoveDict || extCanRemoveDict == Py_None)
   {

@@ -893,7 +893,7 @@ void LightApp_Application::addExtensionsActions(LightApp_ModuleAction* moduleAct
 
    // Import Python module that manages SALOME extensions.
   PyLockWrapper lck; // acquire GIL
-  PyObjWrapper extensionQuery = PyImport_ImportModule((char*)"SalomeOnDemandTK.extension_query");
+  PyObjWrapper extensionQuery = PyImport_ImportModule((char*)"SalomeOnDemandTK.extension_query_impl");
   PyObjWrapper installedExtensions = PyObject_CallMethod(
       extensionQuery, (char*)"ext_by_name", (char*)"s", extRootDir);
   if (!installedExtensions)
