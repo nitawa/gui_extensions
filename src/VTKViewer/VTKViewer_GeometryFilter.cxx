@@ -227,7 +227,7 @@ VTKViewer_GeometryFilter
         if (excPolys->GetNumberOfCells() > 0)
           {
            exc.Links = new vtkStaticCellLinksTemplate<vtkIdType>;
-           exc.Links->ThreadedBuildLinks(numPts, excPolys->GetNumberOfCells(), excPolys);
+           exc.Links->BuildLinks(numPts, excPolys->GetNumberOfCells(), excPolys);
           }
        }
 
