@@ -103,7 +103,7 @@ void QtViewer_ViewPort::fitAll()
   foreach (QGraphicsItem* item, scene()->items())
     { 
       if (item->isVisible())
-        aRect = aRect.united(item->boundingRect());
+        aRect = aRect.united(item->sceneBoundingRect());
     }
  
   fitInView( aRect.adjusted(-myFitAllGap, -myFitAllGap, myFitAllGap, myFitAllGap), Qt::KeepAspectRatio);
@@ -178,10 +178,6 @@ void QtViewer_ViewPort::finishDrawingRect()
   myRectBandEnd = QPoint();
   delete myRectBand;
   myRectBand = nullptr;
-}
-
-void QtViewer_ViewPort::updateSceneRect(const QRectF &rect)
-{
 }
 
 void QtViewer_ViewPort::mousePressEvent(QMouseEvent *event)

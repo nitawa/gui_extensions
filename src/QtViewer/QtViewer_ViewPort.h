@@ -65,10 +65,6 @@ public:
 signals:
   void vpMouseEvent(QMouseEvent*);
 
-
-public slots:
-   virtual void updateSceneRect(const QRectF &rect);
-
 protected:
 
   virtual void mousePressEvent(QMouseEvent *event);
