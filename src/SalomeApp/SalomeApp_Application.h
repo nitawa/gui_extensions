@@ -33,6 +33,8 @@
 
 #include "SalomeApp.h"
 #include <LightApp_Application.h>
+#include "MockHttpServer.h"
+#include "ExtensionManagerDock.h"
 
 #include <omniORB4/CORBA.h>
 
@@ -71,10 +73,11 @@ class SALOMEAPPIMPL_EXPORT SalomeApp_Application : public LightApp_Application
 public:
   enum { MenuToolsId = 5 };
   enum { DumpStudyId = LightApp_Application::UserID, LoadScriptId, PropertiesId,
-         CatalogGenId, RegDisplayId, FindActionId, SaveGUIStateId, ConnectId, DisconnectId,
+         CatalogGenId, RegDisplayId, FindActionId, ExtensionsManagerId, SaveGUIStateId, ConnectId, DisconnectId,
          UserID };
 
   typedef enum { WT_NoteBook = LightApp_Application::WT_User,
+                 WT_ExtensionsManager,
                  WT_User
                } WindowTypes;
 
@@ -180,6 +183,8 @@ protected:
 
   virtual void                        addCatalogue( const QString&, const QString& );
 
+  virtual void                        onInfoPanelShown();
+
 private slots:
   void                                onDeleteInvalidReferences();
   void                                onDblClick( SUIT_DataObject* );
@@ -194,6 +199,7 @@ private slots:
   void                                onRegDisplay();
   void                                onFindAction();
   void                                onOpenWith();
+  void                                onExtensionsManager();
   void                                onExtAction();
 
 private:
@@ -211,6 +217,9 @@ private:
   bool                                myIsCloseFromExit; // "Close from Exit" flag
 
   bool                                myToIgnoreMessages;// to ignore messages from SALOMEDS
+
+  MockHttpServer*                     m_mockServer;
+  QUrl                                m_serverUrl;
 
 signals:
   void                                dumpedStudyClosed( const QString& theDumpScript,

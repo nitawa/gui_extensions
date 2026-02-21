@@ -133,6 +133,14 @@ Launch a new session or close the study.</translation>
         <translation>All files (*.*)</translation>
     </message>
     <message>
+        <source>MEN_DESK_EXTENSIONS</source>
+        <translation>Extensions</translation>
+    </message>
+    <message>
+        <source>PRP_DESK_EXTENSIONS</source>
+        <translation>Show/Hide Extension Manager panel</translation>
+    </message>
+    <message>
         <source>APPCLOSE_UNLOAD</source>
         <translation>&amp;Disconnect w/o saving</translation>
     </message>
@@ -400,6 +408,10 @@ Do you want to reload it ?</translation>
     <message>
         <source>DISCONNECT_WO_SAVE</source>
         <translation>&amp;Disconnect w/o saving</translation>
+    </message>
+    <message>
+        <source>EXTENSIONS_MANAGER</source>
+        <translation>Extensions Manager</translation>
     </message>
 </context>
 <context>

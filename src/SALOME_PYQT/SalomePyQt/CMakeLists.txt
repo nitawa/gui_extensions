@@ -41,6 +41,7 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_SOURCE_DIR}/src/SALOME_PYQT/SALOME_PYQT_GUILight
   ${PROJECT_SOURCE_DIR}/src/STD
   ${PROJECT_SOURCE_DIR}/src/SUIT
+  ${PROJECT_SOURCE_DIR}/src/ExtensionManager # Add this line
   ${PROJECT_SOURCE_DIR}/tools/PyInterp/src
   ${PROJECT_SOURCE_DIR}/tools/PyConsole/src
 )

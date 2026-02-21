@@ -33,6 +33,7 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_SOURCE_DIR}/src/CAM
   ${PROJECT_SOURCE_DIR}/src/STD
   ${PROJECT_SOURCE_DIR}/src/OBJECT
+  ${PROJECT_SOURCE_DIR}/src/ExtensionManager
 )
 
 # additional preprocessor / compiler flags

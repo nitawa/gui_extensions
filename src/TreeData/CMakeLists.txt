@@ -37,6 +37,7 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_SOURCE_DIR}/src/STD
   ${PROJECT_SOURCE_DIR}/src/SUIT
   ${PROJECT_SOURCE_DIR}/src/SalomeApp
+  ${PROJECT_SOURCE_DIR}/src/ExtensionManager
 )
 
 # additional preprocessor / compiler flags

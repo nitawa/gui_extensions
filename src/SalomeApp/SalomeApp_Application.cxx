@@ -108,6 +108,8 @@
 #include <ToolsGUI_CatalogGeneratorDlg.h>
 #include <ToolsGUI_RegWidget.h>
 
+#include "ExtensionManagerDock.h" // Added for Extensions Manager
+
 #include <vector>
 #include <iostream>
 
@@ -207,6 +209,10 @@ SalomeApp_Application::SalomeApp_Application(SALOME_NamingService_Abstract *ns):
     _ns.reset(new SALOME_NamingService(orb()));
   else
     _ns.reset(ns);
+
+  m_mockServer = new MockHttpServer(this);
+  int port = m_mockServer->start(8765);
+  m_serverUrl = QUrl(QString("http://127.0.0.1:%1/extensions").arg(port));
 }
 
 /*!Destructor.
@@ -216,6 +222,7 @@ SalomeApp_Application::~SalomeApp_Application()
 {
   // Do not destroy. It's a singleton !
   //SALOME_EventFilter::Destroy();
+  delete m_mockServer;
 }
 
 QStringList __getArgsList(QString argsString)
@@ -371,6 +378,10 @@ void SalomeApp_Application::createActions()
                 tr( "MEN_DESK_FIND_ACTION" ), tr( "PRP_DESK_FIND_ACTION" ),
                 QKeySequence::UnknownKey, desk, false, this, SLOT( onFindAction() ), "/Tools/FindAction" );
 
+  createAction( ExtensionsManagerId, tr( "TOT_DESK_EXTENSIONS_MANAGER" ), QIcon(),
+                tr( "MEN_DESK_EXTENSIONS_MANAGER" ), tr( "PRP_DESK_EXTENSIONS_MANAGER" ),
+                0, desk, false, this, SLOT( onExtensionsManager() ), "/Extensions/ExtensionsManager" );
+
   createAction( ConnectId, tr( "TOT_DESK_CONNECT_STUDY" ), QIcon(),
                 tr( "MEN_DESK_CONNECT" ), tr( "File/Study_Connection_Connect" ),
                 QKeySequence::UnknownKey, desk, false, this, SLOT( onLoadDoc() ), "/File/Study_Connection_Connect" );
@@ -405,6 +416,9 @@ void SalomeApp_Application::createActions()
   createMenu( RegDisplayId, toolsMenu, 10, -1 );
   createMenu( FindActionId, toolsMenu, 10, -1 );
   createMenu( separator(), toolsMenu, -1, 15, -1 );
+
+  int extensionsMenu = createMenu( tr( "MEN_DESK_EXTENSIONS" ), -1, -1, 60 );
+  createMenu( ExtensionsManagerId, extensionsMenu, 10, -1 );
 
   createExtraActions();
 
@@ -1132,6 +1146,13 @@ QWidget* SalomeApp_Application::createWindow( const int flag )
     wid->setObjectName( "noteBook" );
   }
 #endif
+  else if ( flag == WT_ExtensionsManager )
+  {
+    ExtensionManagerDock* emDock = new ExtensionManagerDock( m_serverUrl, desktop() );
+    emDock->setObjectName( "extensionsManagerDock" );
+    emDock->setWindowTitle( tr( "EXTENSIONS_MANAGER" ) );
+    wid = emDock;
+  }
   return wid;
 }
 
@@ -1567,6 +1588,29 @@ void SalomeApp_Application::onFindAction()
     aDlg.setActiveModuleID();
 
   aDlg.exec();
+}
+
+/*!Display Extensions Manager dialog */
+void SalomeApp_Application::onExtensionsManager()
+{
+  QWidget* extManagerWidget = getWindow(WT_ExtensionsManager);
+  if ( extManagerWidget ) {
+    // Hide the info panel if it's visible
+    if (QWidget* infoPanelWidget = dockWindow(WT_InfoPanel)) {
+        infoPanelWidget->setVisible(false);
+    }
+    placeDockWindow( WT_ExtensionsManager, Qt::RightDockWidgetArea );
+    extManagerWidget->setVisible(true);
+  }
+}
+
+void SalomeApp_Application::onInfoPanelShown()
+{
+  LightApp_Application::onInfoPanelShown();
+  // Hide Extension Manager if Info Panel is shown
+  if (QWidget* extManagerWidget = dockWindow(WT_ExtensionsManager)) {
+    extManagerWidget->setVisible(false);
+  }
 }
 
 /*!find original object by double click on item */

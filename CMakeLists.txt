@@ -53,6 +53,7 @@ OPTION(SALOME_BUILD_DOC "Generate SALOME GUI documentation" ON)
 OPTION(SALOME_BUILD_TESTS "Build SALOME tests" ON)
 OPTION(SALOME_GUI_USE_OBSERVERS "Use study observers in GUI (advanced)" ON)
 OPTION(SALOME_ON_DEMAND "Activate SALOME on demand feature" ON)
+OPTION(SALOME_EXTENSION_MANAGER "Activate SALOME on demand feature" ON)
 CMAKE_DEPENDENT_OPTION(SALOME_GUI_BUILD_FRENCH_DOC "Generate SALOME GUI French documentation" OFF
                        "SALOME_BUILD_DOC" OFF)
 
@@ -476,6 +477,12 @@ ENDIF(SALOME_USE_PYVIEWER)
 IF(SALOME_USE_PVVIEWER)
   LIST(APPEND _${PROJECT_NAME}_exposed_targets PVViewer PVServerService)
 ENDIF()
+
+# Extension manager targets:
+IF(SALOME_EXTENSION_MANAGER)
+  LIST(APPEND _${PROJECT_NAME}_exposed_targets
+       SalomeExtensionManager)
+ENDIF(SALOME_EXTENSION_MANAGER)
 
 # Python-based packages specific targets:
 IF(SALOME_USE_PYCONSOLE)

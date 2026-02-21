@@ -40,6 +40,7 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_SOURCE_DIR}/src/SUIT
   ${PROJECT_SOURCE_DIR}/src/SUITApp
   ${PROJECT_SOURCE_DIR}/src/ObjBrowser
+  ${PROJECT_SOURCE_DIR}/src/ExtensionManager # Add this line
   ${PROJECT_SOURCE_DIR}/tools/PyConsole/src
   ${PROJECT_SOURCE_DIR}/tools/PyInterp/src
 )

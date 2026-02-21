@@ -1143,6 +1143,18 @@ File does not exist</translation>
         <source>PREF_FULL_SCREEN_AUTO</source>
         <translation>Hide object browser and viewers toolbars</translation>
     </message>
+    <message>
+        <source>EXTENSION_MANAGER</source>
+        <translation>Extension Manager</translation>
+    </message>
+    <message>
+        <source>MEN_DESK_EXTENSIONS</source>
+        <translation>Extensions</translation>
+    </message>
+    <message>
+        <source>PRP_DESK_EXTENSIONS</source>
+        <translation>Show/Hide Extension Manager panel</translation>
+    </message>
   <message>
     <source>PREF_TAB_PYEDITOR</source>
     <translation>Python Viewer</translation>
