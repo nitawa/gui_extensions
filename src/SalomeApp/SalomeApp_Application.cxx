@@ -109,6 +109,7 @@
 #include <ToolsGUI_RegWidget.h>
 
 #include "ExtensionManagerDock.h" // Added for Extensions Manager
+#include "ExtensionDetailsView.h"
 
 #include <vector>
 #include <iostream>
@@ -1151,6 +1152,8 @@ QWidget* SalomeApp_Application::createWindow( const int flag )
     ExtensionManagerDock* emDock = new ExtensionManagerDock( m_serverUrl, desktop() );
     emDock->setObjectName( "extensionsManagerDock" );
     emDock->setWindowTitle( tr( "EXTENSIONS_MANAGER" ) );
+    connect( emDock, &ExtensionManagerDock::extensionClicked,
+             this, &SalomeApp_Application::onExtensionClicked );
     wid = emDock;
   }
   return wid;
@@ -1602,6 +1605,14 @@ void SalomeApp_Application::onExtensionsManager()
     placeDockWindow( WT_ExtensionsManager, Qt::RightDockWidgetArea );
     extManagerWidget->setVisible(true);
   }
+}
+
+/*!Action handler for extension click.*/
+void SalomeApp_Application::onExtensionClicked( const Extension& ext )
+{
+  ExtensionDetailsView* view = new ExtensionDetailsView( desktop() );
+  view->setExtension( ext );
+  view->show();
 }
 
 void SalomeApp_Application::onInfoPanelShown()

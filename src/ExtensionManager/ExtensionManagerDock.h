@@ -36,11 +36,15 @@ public:
     explicit ExtensionManagerDock(const QUrl &serverUrl,
                                   QWidget *parent = nullptr);
 
+signals:
+    void extensionClicked(const Extension &ext);
+
 private slots:
     void onSearchTextChanged(const QString &text);
     void onExtensionsFetched(const QList<Extension> &extensions);
     void onFetchError(const QString &errorMessage);
     void onInstallRequested(const QModelIndex &index);
+    void onItemClicked(const QModelIndex &index);
     void onInstallProgress(const QString &extId, int percent);
     void onInstallFinished(const QString &extId, bool success);
 

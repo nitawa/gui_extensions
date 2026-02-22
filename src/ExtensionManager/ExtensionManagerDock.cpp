@@ -41,6 +41,9 @@ ExtensionManagerDock::ExtensionManagerDock(const QUrl &serverUrl, QWidget *paren
     connect(m_delegate, &ExtensionDelegate::installRequested,
             this, &ExtensionManagerDock::onInstallRequested);
 
+    connect(m_listView, &QListView::clicked,
+            this, &ExtensionManagerDock::onItemClicked);
+
     // Initial load: fetch all
     triggerSearch("");
 }
@@ -186,6 +189,12 @@ void ExtensionManagerDock::onInstallRequested(const QModelIndex &index)
     m_progressBar->show();
 
     m_fetcher->installExtension(ext, m_serverUrl);
+}
+
+void ExtensionManagerDock::onItemClicked(const QModelIndex &index)
+{
+    const Extension &ext = m_model->extensionAt(index.row());
+    emit extensionClicked(ext);
 }
 
 void ExtensionManagerDock::onInstallProgress(const QString &, int percent)

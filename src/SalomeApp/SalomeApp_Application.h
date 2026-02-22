@@ -201,6 +201,7 @@ private slots:
   void                                onOpenWith();
   void                                onExtensionsManager();
   void                                onExtAction();
+  void                                onExtensionClicked( const Extension& );
 
 private:
   void                                createExtraActions();

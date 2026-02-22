@@ -22,6 +22,7 @@ INCLUDE_DIRECTORIES(
   ${QT_INCLUDES}
   ${QWT_INCLUDE_DIR}
   ${PROJECT_SOURCE_DIR}/src/ExtensionManager
+  ${PROJECT_SOURCE_DIR}/src/SUIT
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -36,6 +37,7 @@ set(SOURCES
     ExtensionDelegate.cpp
     ExtensionFetcher.cpp
     MockHttpServer.cpp
+    ExtensionDetailsView.cpp
 )
 
 set(HEADERS
@@ -45,6 +47,7 @@ set(HEADERS
     ExtensionFetcher.h
     MockHttpServer.h
     Extension.h
+    ExtensionDetailsView.h
 )
 
 # additional preprocessor / compiler flags
