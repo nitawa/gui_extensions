@@ -33,6 +33,7 @@ public:
 
 signals:
     void installRequested(const QModelIndex &index);
+    void uninstallRequested(const QModelIndex &index);
 
 private:
     QRect installButtonRect(const QStyleOptionViewItem &option) const;

@@ -1612,10 +1612,30 @@ void SalomeApp_Application::onExtensionClicked( const Extension& ext )
 {
   ExtensionDetailsView* view = new ExtensionDetailsView( desktop() );
   
-  // Find ExtensionManagerDock to connect installRequested signal
+  // Find ExtensionManagerDock to connect signals
   if ( ExtensionManagerDock* emDock = qobject_cast<ExtensionManagerDock*>( dockWindow( WT_ExtensionsManager ) ) ) {
     connect( view, &ExtensionDetailsView::installRequested,
              emDock, &ExtensionManagerDock::installExtension );
+    connect( view, &ExtensionDetailsView::uninstallRequested,
+             emDock, &ExtensionManagerDock::uninstallExtension );
+
+    // When status changes in the model, update the view
+    connect( emDock, &ExtensionManagerDock::extensionClicked, [view](const Extension& ext) {
+        // This is a bit of a hack since extensionClicked is emitted when user clicks in dock
+        // but we need a signal for status change. 
+        // For now, let's assume if the same extension is clicked it's updated.
+        // Better: connect to model's dataChanged or a dedicated signal in dock.
+    });
+
+    // Let's use a more robust way: find the model and connect to dataChanged
+    if ( ExtensionModel* model = emDock->findChild<ExtensionModel*>() ) {
+        connect( model, &ExtensionModel::dataChanged, view, [view, model](const QModelIndex& topLeft) {
+            const Extension& updatedExt = model->extensionAt(topLeft.row());
+            if ( updatedExt.id == view->extension().id ) {
+                view->setExtension( updatedExt );
+            }
+        });
+    }
   }
 
   view->setExtension( ext );

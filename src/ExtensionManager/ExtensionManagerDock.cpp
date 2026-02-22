@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include <QFrame>
 #include <QScrollBar>
+#include <QScrollArea>
 
 // ─────────────────────────────────────────────────────────────
 
@@ -11,6 +12,8 @@ ExtensionManagerDock::ExtensionManagerDock(const QUrl &serverUrl, QWidget *paren
     , m_serverUrl(serverUrl)
 {
     m_model    = new ExtensionModel(this);
+    m_installedModel = new ExtensionModel(this);
+    m_recommendedModel = new ExtensionModel(this);
     m_delegate = new ExtensionDelegate(this);
     m_fetcher  = new ExtensionFetcher(this);
 
@@ -37,11 +40,17 @@ ExtensionManagerDock::ExtensionManagerDock(const QUrl &serverUrl, QWidget *paren
             this, &ExtensionManagerDock::onInstallProgress);
     connect(m_fetcher, &ExtensionFetcher::installFinished,
             this, &ExtensionManagerDock::onInstallFinished);
+    connect(m_fetcher, &ExtensionFetcher::uninstallFinished,
+            this, &ExtensionManagerDock::onUninstallFinished);
 
     connect(m_delegate, &ExtensionDelegate::installRequested,
             this, &ExtensionManagerDock::onInstallRequested);
+    connect(m_delegate, &ExtensionDelegate::uninstallRequested,
+            this, &ExtensionManagerDock::onUninstallRequested);
 
-    connect(m_listView, &QListView::clicked,
+    connect(m_installedListView, &QListView::clicked,
+            this, &ExtensionManagerDock::onItemClicked);
+    connect(m_recommendedListView, &QListView::clicked,
             this, &ExtensionManagerDock::onItemClicked);
 
     // Initial load: fetch all
@@ -101,29 +110,51 @@ void ExtensionManagerDock::buildUi()
                                  "padding: 2px 12px 4px 12px;");
     rootLayout->addWidget(m_statusLabel);
 
-    // ── List view ─────────────────────────────────────────────
-    m_listView = new QListView;
-    m_listView->setModel(m_model);
-    m_listView->setItemDelegate(m_delegate);
-    m_listView->setMouseTracking(true);
-    m_listView->setUniformItemSizes(true);
-    m_listView->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_listView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_listView->setStyleSheet(
-        "QListView {"
-        "  background-color: #252526;"
-        "  border: none;"
-        "}"
-        "QScrollBar:vertical {"
-        "  background: #252526;"
-        "  width: 10px;"
-        "}"
-        "QScrollBar::handle:vertical {"
-        "  background: #555555;"
-        "  border-radius: 5px;"
-        "}"
-        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0; }");
-    rootLayout->addWidget(m_listView, 1);
+    auto* scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    scrollArea->setStyleSheet("background-color: #252526; border: none;");
+    
+    auto* scrollWidget = new QWidget;
+    auto* scrollLayout = new QVBoxLayout(scrollWidget);
+    scrollLayout->setContentsMargins(0, 0, 0, 0);
+    scrollLayout->setSpacing(0);
+
+    // ── Installed Section ─────────────────────────────────────
+    m_installedHeader = new QLabel("  INSTALLED");
+    m_installedHeader->setStyleSheet("color: #bbbbbb; font-size: 10px; font-weight: bold; background-color: #37373d; padding: 4px 0;");
+    scrollLayout->addWidget(m_installedHeader);
+
+    m_installedListView = new QListView;
+    m_installedListView->setModel(m_installedModel);
+    m_installedListView->setItemDelegate(m_delegate);
+    m_installedListView->setMouseTracking(true);
+    m_installedListView->setUniformItemSizes(true);
+    m_installedListView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_installedListView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_installedListView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_installedListView->setStyleSheet("QListView { background-color: #252526; border: none; }");
+    scrollLayout->addWidget(m_installedListView);
+
+    // ── Recommended Section ───────────────────────────────────
+    m_recommendedHeader = new QLabel("  RECOMMENDED");
+    m_recommendedHeader->setStyleSheet("color: #bbbbbb; font-size: 10px; font-weight: bold; background-color: #37373d; padding: 4px 0;");
+    scrollLayout->addWidget(m_recommendedHeader);
+
+    m_recommendedListView = new QListView;
+    m_recommendedListView->setModel(m_recommendedModel);
+    m_recommendedListView->setItemDelegate(m_delegate);
+    m_recommendedListView->setMouseTracking(true);
+    m_recommendedListView->setUniformItemSizes(true);
+    m_recommendedListView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_recommendedListView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_recommendedListView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_recommendedListView->setStyleSheet("QListView { background-color: #252526; border: none; }");
+    scrollLayout->addWidget(m_recommendedListView);
+    
+    scrollLayout->addStretch();
+    scrollArea->setWidget(scrollWidget);
+    rootLayout->addWidget(scrollArea, 1);
 
     // ── Progress area ─────────────────────────────────────────
     QFrame *progressFrame = new QFrame;
@@ -166,12 +197,42 @@ void ExtensionManagerDock::triggerSearch(const QString &keyword)
 void ExtensionManagerDock::onExtensionsFetched(const QList<Extension> &extensions)
 {
     m_model->setExtensions(extensions);
+    updateSplitModels();
     if (extensions.isEmpty())
         setStatusMessage("No extensions found.");
     else
         setStatusMessage(QString("Showing %1 result%2")
                          .arg(extensions.size())
                          .arg(extensions.size() > 1 ? "s" : ""));
+}
+
+void ExtensionManagerDock::updateSplitModels()
+{
+    QList<Extension> installed;
+    QList<Extension> recommended;
+    
+    // In a real app, we might have a list of already installed IDs
+    // For this mock, let's assume we use the main model as source of truth
+    for (int i = 0; i < m_model->rowCount(); ++i) {
+        const Extension& ext = m_model->extensionAt(i);
+        if (ext.installed)
+            installed << ext;
+        else
+            recommended << ext;
+    }
+    
+    m_installedModel->setExtensions(installed);
+    m_recommendedModel->setExtensions(recommended);
+    
+    // Adjust height of list views based on content (approximate)
+    m_installedListView->setFixedHeight(installed.size() * 60); // 60 is delegate height
+    m_recommendedListView->setFixedHeight(recommended.size() * 60);
+    
+    // Hide/show sections if empty
+    m_installedListView->setVisible(!installed.isEmpty());
+    m_installedHeader->setVisible(!installed.isEmpty());
+    m_recommendedListView->setVisible(!recommended.isEmpty());
+    m_recommendedHeader->setVisible(!recommended.isEmpty());
 }
 
 void ExtensionManagerDock::onFetchError(const QString &errorMessage)
@@ -181,8 +242,18 @@ void ExtensionManagerDock::onFetchError(const QString &errorMessage)
 
 void ExtensionManagerDock::onInstallRequested(const QModelIndex &index)
 {
-    const Extension &ext = m_model->extensionAt(index.row());
-    installExtension(ext);
+    const ExtensionModel* model = qobject_cast<const ExtensionModel*>(index.model());
+    if (model) {
+        installExtension(model->extensionAt(index.row()));
+    }
+}
+
+void ExtensionManagerDock::onUninstallRequested(const QModelIndex &index)
+{
+    const ExtensionModel* model = qobject_cast<const ExtensionModel*>(index.model());
+    if (model) {
+        uninstallExtension(model->extensionAt(index.row()));
+    }
 }
 
 void ExtensionManagerDock::installExtension(const Extension &ext)
@@ -195,10 +266,22 @@ void ExtensionManagerDock::installExtension(const Extension &ext)
     m_fetcher->installExtension(ext, m_serverUrl);
 }
 
+void ExtensionManagerDock::uninstallExtension(const Extension &ext)
+{
+    m_progressLabel->setText(QString("Uninstalling %1 …").arg(ext.name));
+    m_progressLabel->show();
+    m_progressBar->hide(); // Uninstallation doesn't have progress in this mock
+
+    m_fetcher->uninstallExtension(ext, m_serverUrl);
+}
+
 void ExtensionManagerDock::onItemClicked(const QModelIndex &index)
 {
-    const Extension &ext = m_model->extensionAt(index.row());
-    emit extensionClicked(ext);
+    const ExtensionModel* model = qobject_cast<const ExtensionModel*>(index.model());
+    if (model) {
+        const Extension &ext = model->extensionAt(index.row());
+        emit extensionClicked(ext);
+    }
 }
 
 void ExtensionManagerDock::onInstallProgress(const QString &, int percent)
@@ -211,11 +294,31 @@ void ExtensionManagerDock::onInstallFinished(const QString &extId, bool success)
     m_progressBar->hide();
     if (success) {
         m_model->markInstalled(extId);
+        updateSplitModels();
         m_progressLabel->setStyleSheet("color: #4ec9b0; font-size: 11px;");
         m_progressLabel->setText("✓ Installation complete");
     } else {
         m_progressLabel->setStyleSheet("color: #f44747; font-size: 11px;");
         m_progressLabel->setText("✗ Installation failed");
+    }
+
+    // Auto-hide message after 3 s
+    QTimer::singleShot(3000, this, [this]() {
+        m_progressLabel->hide();
+        m_progressLabel->setStyleSheet("color: #9d9d9d; font-size: 11px;");
+    });
+}
+
+void ExtensionManagerDock::onUninstallFinished(const QString &extId, bool success)
+{
+    if (success) {
+        m_model->markUninstalled(extId);
+        updateSplitModels();
+        m_progressLabel->setStyleSheet("color: #4ec9b0; font-size: 11px;");
+        m_progressLabel->setText("✓ Uninstallation complete");
+    } else {
+        m_progressLabel->setStyleSheet("color: #f44747; font-size: 11px;");
+        m_progressLabel->setText("✗ Uninstallation failed");
     }
 
     // Auto-hide message after 3 s

@@ -120,12 +120,12 @@ void ExtensionDelegate::paint(QPainter *painter,
     // ── Install button ───────────────────────────────────────
     QRect btnRect = installButtonRect(option);
     if (installed) {
-        painter->setPen(QColor("#4ec9b0"));
-        painter->setBrush(Qt::NoBrush);
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(QColor("#d73a49")); // Red for uninstall
         painter->drawRoundedRect(btnRect, 3, 3);
-        painter->setPen(QColor("#4ec9b0"));
+        painter->setPen(Qt::white);
         QFont f = smallFont; f.setBold(true); painter->setFont(f);
-        painter->drawText(btnRect, Qt::AlignCenter, "✓ Installed");
+        painter->drawText(btnRect, Qt::AlignCenter, "Uninstall");
     } else {
         painter->setPen(Qt::NoPen);
         painter->setBrush(QColor("#0e639c"));
@@ -183,6 +183,8 @@ bool ExtensionDelegate::editorEvent(QEvent *event,
             bool installed = index.data(ExtensionModel::InstalledRole).toBool();
             if (!installed)
                 emit installRequested(index);
+            else
+                emit uninstallRequested(index);
             return true;
         }
     }

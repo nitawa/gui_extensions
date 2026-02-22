@@ -38,6 +38,7 @@ public:
 
 public slots:
     void installExtension(const Extension &ext);
+    void uninstallExtension(const Extension &ext);
 
 signals:
     void extensionClicked(const Extension &ext);
@@ -47,26 +48,35 @@ private slots:
     void onExtensionsFetched(const QList<Extension> &extensions);
     void onFetchError(const QString &errorMessage);
     void onInstallRequested(const QModelIndex &index);
+    void onUninstallRequested(const QModelIndex &index);
     void onItemClicked(const QModelIndex &index);
     void onInstallProgress(const QString &extId, int percent);
     void onInstallFinished(const QString &extId, bool success);
+    void onUninstallFinished(const QString &extId, bool success);
 
 private:
     void buildUi();
     void triggerSearch(const QString &keyword);
     void setStatusMessage(const QString &msg, const QString &color = "#9d9d9d");
+    void updateSplitModels();
 
     QUrl               m_serverUrl;
 
     // ── Widgets ───────────────────────────────────────────────
     QLineEdit         *m_searchEdit   = nullptr;
     QLabel            *m_statusLabel  = nullptr;
-    QListView         *m_listView     = nullptr;
+    QListView         *m_listView     = nullptr; // Original one, we might keep it or replace it
+    QListView         *m_installedListView = nullptr;
+    QListView         *m_recommendedListView = nullptr;
+    QLabel            *m_installedHeader = nullptr;
+    QLabel            *m_recommendedHeader = nullptr;
     QProgressBar      *m_progressBar  = nullptr;
     QLabel            *m_progressLabel= nullptr;
 
     // ── Business logic ────────────────────────────────────────
     ExtensionModel    *m_model        = nullptr;
+    ExtensionModel    *m_installedModel = nullptr;
+    ExtensionModel    *m_recommendedModel = nullptr;
     ExtensionDelegate *m_delegate     = nullptr;
     ExtensionFetcher  *m_fetcher      = nullptr;
 

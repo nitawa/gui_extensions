@@ -33,8 +33,11 @@ public:
     // ── Mutators ──────────────────────────────────────────────
     void setExtensions(const QList<Extension> &extensions);
     void markInstalled(const QString &extId);
+    void markUninstalled(const QString &extId);
 
     const Extension &extensionAt(int row) const;
+
+    bool isInstalled(const QString &extId) const;
 
 private:
     QList<Extension> m_extensions;

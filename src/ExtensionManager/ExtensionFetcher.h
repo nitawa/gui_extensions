@@ -39,15 +39,20 @@ public:
     /// package archive and unpack it).
     void installExtension(const Extension &ext, const QUrl &serverUrl);
 
+    /// Uninstall an extension.
+    void uninstallExtension(const Extension &ext, const QUrl &serverUrl);
+
 signals:
     void extensionsFetched(const QList<Extension> &extensions);
     void fetchError(const QString &errorMessage);
     void installProgress(const QString &extId, int percent);
     void installFinished(const QString &extId, bool success);
+    void uninstallFinished(const QString &extId, bool success);
 
 private slots:
     void onSearchReplyFinished();
     void onInstallReplyFinished();
+    void onUninstallReplyFinished();
 
 private:
     QList<Extension> parseJson(const QByteArray &data);

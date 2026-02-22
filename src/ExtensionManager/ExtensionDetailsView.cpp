@@ -76,6 +76,23 @@ void ExtensionDetailsView::buildUi()
   connect( m_installButton, &QPushButton::clicked, this, &ExtensionDetailsView::onInstallClicked );
   headerLayout->addWidget( m_installButton );
 
+  m_uninstallButton = new QPushButton( tr( "UNINSTALL" ) );
+  m_uninstallButton->setFixedSize( 100, 32 );
+  m_uninstallButton->setCursor( Qt::PointingHandCursor );
+  m_uninstallButton->setStyleSheet(
+    "QPushButton {"
+    "  background-color: #d73a49;"
+    "  color: white;"
+    "  border-radius: 4px;"
+    "  font-weight: bold;"
+    "}"
+    "QPushButton:hover {"
+    "  background-color: #b32d3a;"
+    "}"
+  );
+  connect( m_uninstallButton, &QPushButton::clicked, this, &ExtensionDetailsView::onUninstallClicked );
+  headerLayout->addWidget( m_uninstallButton );
+
   rootLayout->addLayout( headerLayout );
 
   // ── Stats ──
@@ -132,13 +149,7 @@ void ExtensionDetailsView::setExtension( const Extension& ext )
   m_ratingLabel->setText( QString( "⭐ %1" ).arg( ext.rating, 0, 'f', 1 ) );
   m_installsLabel->setText( QString( "⬇ %1 installs" ).arg( ext.installs ) );
   
-  if ( ext.installed ) {
-    m_installButton->setText( tr( "INSTALLED" ) );
-    m_installButton->setEnabled( false );
-  } else {
-    m_installButton->setText( tr( "INSTALL" ) );
-    m_installButton->setEnabled( true );
-  }
+  updateButtons();
 
   // Load icon if URL is available
   if ( !ext.iconUrl.isEmpty() ) {
@@ -165,7 +176,31 @@ void ExtensionDetailsView::setExtension( const Extension& ext )
 
 void ExtensionDetailsView::onInstallClicked()
 {
+  m_installButton->setText( tr( "INSTALLING..." ) );
+  m_installButton->setEnabled( false );
   emit installRequested( m_extension );
+}
+
+void ExtensionDetailsView::onUninstallClicked()
+{
+  m_uninstallButton->setText( tr( "UNINSTALLING..." ) );
+  m_uninstallButton->setEnabled( false );
+  emit uninstallRequested( m_extension );
+}
+
+void ExtensionDetailsView::updateButtons()
+{
+  if ( m_extension.installed ) {
+    m_installButton->hide();
+    m_uninstallButton->show();
+    m_uninstallButton->setText( tr( "UNINSTALL" ) );
+    m_uninstallButton->setEnabled( true );
+  } else {
+    m_installButton->show();
+    m_uninstallButton->hide();
+    m_installButton->setText( tr( "INSTALL" ) );
+    m_installButton->setEnabled( true );
+  }
 }
 
 void ExtensionDetailsView::contextMenuEvent( QContextMenuEvent* event )

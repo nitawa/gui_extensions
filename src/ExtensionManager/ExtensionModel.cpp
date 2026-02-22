@@ -65,7 +65,27 @@ void ExtensionModel::markInstalled(const QString &extId)
     }
 }
 
+void ExtensionModel::markUninstalled(const QString &extId)
+{
+    for (int i = 0; i < m_extensions.size(); ++i) {
+        if (m_extensions[i].id == extId) {
+            m_extensions[i].installed = false;
+            QModelIndex idx = index(i);
+            emit dataChanged(idx, idx, {InstalledRole});
+            break;
+        }
+    }
+}
+
 const Extension &ExtensionModel::extensionAt(int row) const
 {
     return m_extensions.at(row);
+}
+
+bool ExtensionModel::isInstalled(const QString &extId) const
+{
+    for (const Extension &ext : m_extensions) {
+        if (ext.id == extId) return ext.installed;
+    }
+    return false;
 }

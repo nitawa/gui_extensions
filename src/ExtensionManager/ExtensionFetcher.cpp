@@ -57,6 +57,24 @@ void ExtensionFetcher::installExtension(const Extension &ext, const QUrl &server
             this,  &ExtensionFetcher::onInstallReplyFinished);
 }
 
+void ExtensionFetcher::uninstallExtension(const Extension &ext, const QUrl &serverUrl)
+{
+    // Build URL:  GET /uninstall?id=<ext.id>
+    QUrl url = serverUrl;
+    url.setPath(url.path().replace("extensions", "uninstall"));
+    QUrlQuery query;
+    query.addQueryItem("id", ext.id);
+    url.setQuery(query);
+
+    m_pendingInstallId = ext.id;
+
+    QNetworkRequest request(url);
+    QNetworkReply *reply = m_nam->get(request);
+
+    connect(reply, &QNetworkReply::finished,
+            this,  &ExtensionFetcher::onUninstallReplyFinished);
+}
+
 // ── Private slots ─────────────────────────────────────────────
 
 void ExtensionFetcher::onSearchReplyFinished()
@@ -85,6 +103,18 @@ void ExtensionFetcher::onInstallReplyFinished()
     emit installFinished(m_pendingInstallId, ok);
     if (!ok)
         emit fetchError(tr("Installation failed: ") + reply->errorString());
+}
+
+void ExtensionFetcher::onUninstallReplyFinished()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (!reply) return;
+    reply->deleteLater();
+
+    bool ok = (reply->error() == QNetworkReply::NoError);
+    emit uninstallFinished(m_pendingInstallId, ok);
+    if (!ok)
+        emit fetchError(tr("Uninstallation failed: ") + reply->errorString());
 }
 
 // ── JSON parser ───────────────────────────────────────────────
