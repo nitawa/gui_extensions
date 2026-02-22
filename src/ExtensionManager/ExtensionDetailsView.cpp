@@ -8,6 +8,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QContextMenuEvent>
+#include <QCloseEvent>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -173,5 +174,12 @@ void ExtensionDetailsView::contextMenuEvent( QContextMenuEvent* event )
   QAction* closeAction = menu.addAction( tr( "Close" ) );
   connect( closeAction, &QAction::triggered, this, &ExtensionDetailsView::close );
   menu.exec( event->globalPos() );
+}
+
+void ExtensionDetailsView::closeEvent( QCloseEvent* event )
+{
+  SUIT_ViewWindow::closeEvent( event );
+  if ( closable() )
+    event->accept();
 }
 

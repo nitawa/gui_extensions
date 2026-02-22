@@ -6,6 +6,8 @@
 
 class QLabel;
 class QPushButton;
+class QContextMenuEvent;
+class QCloseEvent;
 
 class ExtensionDetailsView : public SUIT_ViewWindow
 {
@@ -22,6 +24,7 @@ signals:
 
 protected:
   virtual void contextMenuEvent( QContextMenuEvent* event ) override;
+  virtual void closeEvent( QCloseEvent* event ) override;
 
 private slots:
   void onInstallClicked();
