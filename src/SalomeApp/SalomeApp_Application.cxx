@@ -1611,6 +1611,13 @@ void SalomeApp_Application::onExtensionsManager()
 void SalomeApp_Application::onExtensionClicked( const Extension& ext )
 {
   ExtensionDetailsView* view = new ExtensionDetailsView( desktop() );
+  
+  // Find ExtensionManagerDock to connect installRequested signal
+  if ( ExtensionManagerDock* emDock = qobject_cast<ExtensionManagerDock*>( dockWindow( WT_ExtensionsManager ) ) ) {
+    connect( view, &ExtensionDetailsView::installRequested,
+             emDock, &ExtensionManagerDock::installExtension );
+  }
+
   view->setExtension( ext );
   view->show();
 }

@@ -17,8 +17,19 @@ public:
 
   void setExtension( const Extension& ext );
 
+signals:
+  void installRequested( const Extension& ext );
+
+protected:
+  virtual void contextMenuEvent( QContextMenuEvent* event ) override;
+
+private slots:
+  void onInstallClicked();
+
 private:
   void buildUi();
+
+  Extension m_extension;
 
   QLabel* m_iconLabel;
   QLabel* m_nameLabel;
@@ -27,6 +38,7 @@ private:
   QLabel* m_descriptionLabel;
   QLabel* m_ratingLabel;
   QLabel* m_installsLabel;
+  QPushButton* m_installButton;
 };
 
 #endif // EXTENSIONDETAILSVIEW_H

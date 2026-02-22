@@ -5,6 +5,15 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QFrame>
+#include <QMenu>
+#include <QAction>
+#include <QContextMenuEvent>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QUrl>
+#include <QPixmap>
+#include <QPalette>
 
 ExtensionDetailsView::ExtensionDetailsView( SUIT_Desktop* desktop )
   : SUIT_ViewWindow( desktop )
@@ -31,6 +40,7 @@ void ExtensionDetailsView::buildUi()
   m_iconLabel = new QLabel();
   m_iconLabel->setFixedSize( 64, 64 );
   m_iconLabel->setStyleSheet( "background-color: #333; border-radius: 8px;" );
+  m_iconLabel->setAlignment( Qt::AlignCenter );
   headerLayout->addWidget( m_iconLabel );
 
   QVBoxLayout* titleLayout = new QVBoxLayout();
@@ -43,6 +53,28 @@ void ExtensionDetailsView::buildUi()
   titleLayout->addWidget( m_versionLabel );
   headerLayout->addLayout( titleLayout );
   headerLayout->addStretch();
+
+  m_installButton = new QPushButton( tr( "INSTALL" ) );
+  m_installButton->setFixedSize( 100, 32 );
+  m_installButton->setCursor( Qt::PointingHandCursor );
+  m_installButton->setStyleSheet(
+    "QPushButton {"
+    "  background-color: #007acc;"
+    "  color: white;"
+    "  border-radius: 4px;"
+    "  font-weight: bold;"
+    "}"
+    "QPushButton:hover {"
+    "  background-color: #005a9e;"
+    "}"
+    "QPushButton:disabled {"
+    "  background-color: #444;"
+    "  color: #888;"
+    "}"
+  );
+  connect( m_installButton, &QPushButton::clicked, this, &ExtensionDetailsView::onInstallClicked );
+  headerLayout->addWidget( m_installButton );
+
   rootLayout->addLayout( headerLayout );
 
   // ── Stats ──
@@ -70,7 +102,7 @@ void ExtensionDetailsView::buildUi()
   rootLayout->addWidget( line );
 
   // ── Description ──
-  QLabel* descTitle = new QLabel( "Description" );
+  QLabel* descTitle = new QLabel( tr( "Description" ) );
   descTitle->setStyleSheet( "font-size: 18px; font-weight: bold; color: #ddd;" );
   rootLayout->addWidget( descTitle );
 
@@ -91,6 +123,7 @@ void ExtensionDetailsView::buildUi()
 
 void ExtensionDetailsView::setExtension( const Extension& ext )
 {
+  m_extension = ext;
   m_nameLabel->setText( ext.name );
   m_versionLabel->setText( "v" + ext.version );
   m_authorLabel->setText( "by " + ext.author );
@@ -98,5 +131,47 @@ void ExtensionDetailsView::setExtension( const Extension& ext )
   m_ratingLabel->setText( QString( "⭐ %1" ).arg( ext.rating, 0, 'f', 1 ) );
   m_installsLabel->setText( QString( "⬇ %1 installs" ).arg( ext.installs ) );
   
+  if ( ext.installed ) {
+    m_installButton->setText( tr( "INSTALLED" ) );
+    m_installButton->setEnabled( false );
+  } else {
+    m_installButton->setText( tr( "INSTALL" ) );
+    m_installButton->setEnabled( true );
+  }
+
+  // Load icon if URL is available
+  if ( !ext.iconUrl.isEmpty() ) {
+    QNetworkAccessManager* manager = new QNetworkAccessManager( this );
+    connect( manager, &QNetworkAccessManager::finished, this, [this]( QNetworkReply* reply ) {
+      if ( reply->error() == QNetworkReply::NoError ) {
+        QPixmap pixmap;
+        pixmap.loadFromData( reply->readAll() );
+        m_iconLabel->setPixmap( pixmap.scaled( 64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation ) );
+      } else {
+        m_iconLabel->setText( m_extension.name.left( 1 ).toUpper() );
+        m_iconLabel->setStyleSheet( "background-color: #007acc; color: white; border-radius: 8px; font-size: 32px; font-weight: bold;" );
+      }
+      reply->deleteLater();
+    } );
+    manager->get( QNetworkRequest( QUrl( ext.iconUrl ) ) );
+  } else {
+    m_iconLabel->setText( ext.name.left( 1 ).toUpper() );
+    m_iconLabel->setStyleSheet( "background-color: #007acc; color: white; border-radius: 8px; font-size: 32px; font-weight: bold;" );
+  }
+
   setWindowTitle( ext.name + " - Details" );
 }
+
+void ExtensionDetailsView::onInstallClicked()
+{
+  emit installRequested( m_extension );
+}
+
+void ExtensionDetailsView::contextMenuEvent( QContextMenuEvent* event )
+{
+  QMenu menu( this );
+  QAction* closeAction = menu.addAction( tr( "Close" ) );
+  connect( closeAction, &QAction::triggered, this, &ExtensionDetailsView::close );
+  menu.exec( event->globalPos() );
+}
+

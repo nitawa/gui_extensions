@@ -182,7 +182,11 @@ void ExtensionManagerDock::onFetchError(const QString &errorMessage)
 void ExtensionManagerDock::onInstallRequested(const QModelIndex &index)
 {
     const Extension &ext = m_model->extensionAt(index.row());
+    installExtension(ext);
+}
 
+void ExtensionManagerDock::installExtension(const Extension &ext)
+{
     m_progressLabel->setText(QString("Installing %1 …").arg(ext.name));
     m_progressLabel->show();
     m_progressBar->setValue(0);

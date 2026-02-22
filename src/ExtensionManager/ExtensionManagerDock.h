@@ -36,6 +36,9 @@ public:
     explicit ExtensionManagerDock(const QUrl &serverUrl,
                                   QWidget *parent = nullptr);
 
+public slots:
+    void installExtension(const Extension &ext);
+
 signals:
     void extensionClicked(const Extension &ext);
 
